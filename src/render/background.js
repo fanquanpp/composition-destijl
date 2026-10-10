@@ -10,7 +10,7 @@
  */
 import * as THREE from 'three';
 import { PALETTE } from '../config.js';
-import { makeBlock, makePainting, makeRng, disposeTree, MAT, Z, box } from './style.js';
+import { makeBlock, makePainting, makeRng, disposeTree, MAT, Z, box, flat } from './style.js';
 
 /**
  * The backdrop is a *faded print* of the palette: every colour is mixed most of
@@ -18,30 +18,52 @@ import { makeBlock, makePainting, makeRng, disposeTree, MAT, Z, box } from './st
  * while the terrain keeps the full-strength primaries and pure black frames.
  * Without this the background rectangles look like solid walls the player ought
  * to be able to stand on.
+ *
+ * The fade is not the same on every plane. It deepens with distance — the far
+ * band is washed almost to paper, the near band keeps enough body to read as its
+ * own surface. That aerial perspective is the one depth cue that survives a
+ * still frame; motion parallax vanishes the instant the camera stops, so without
+ * it the three planes collapse into a single flat mosaic.
  */
 const PAPER = new THREE.Color(PALETTE.paper);
-const fade = (hex, amount) => new THREE.Color(hex).lerp(PAPER, amount).getHex();
+const fade = (hex, amount) => new THREE.Color(hex).lerp(PAPER, Math.min(1, amount)).getHex();
 
-const BACKDROP = {
-  white: fade(PALETTE.white, 0.55),
-  red: fade(PALETTE.red, 0.72),
-  yellow: fade(PALETTE.yellow, 0.70),
-  blue: fade(PALETTE.blue, 0.72),
-  line: fade(PALETTE.black, 0.74),
-};
-const BACKDROP_ACCENTS = [BACKDROP.red, BACKDROP.yellow, BACKDROP.blue];
-const BACKDROP_LINE = new THREE.MeshBasicMaterial({ color: BACKDROP.line, toneMapped: false });
+/** Fade at the mid plane; LAYER_HAZE below scales it per plane. */
+const BASE_FADE = { white: 0.55, red: 0.72, yellow: 0.70, blue: 0.72, black: 0.74 };
+/** Further back fades more, nearer keeps more. This is the aerial perspective. */
+const LAYER_HAZE = { far: 1.16, mid: 1.0, near: 0.76 };
+
+/** The faded palette for one depth plane. */
+function paletteFor(haze) {
+  const p = {};
+  for (const [key, amount] of Object.entries(BASE_FADE)) p[key] = fade(PALETTE[key], amount * haze);
+  return p;
+}
 
 /** Vertical size of a backdrop band, in world units — kept near the view height
  *  so shapes read as composition rather than architecture, whatever the level. */
 const BAND_H = 13;
 
-/** Layer definitions: closeness controls how much the plane slides on screen. */
+/**
+ * Layer definitions. `closeness` is how much the plane slides on screen: 0 is
+ * pinned to the screen (infinitely far), 1 moves with the world. The spread
+ * between the three planes is what the parallax reads as depth, so they are kept
+ * well apart.
+ */
 const LAYERS = [
-  { name: 'far',  z: Z.far,  closeness: 0.14, colorChance: 0.26, scale: 1.9, outline: 0.10, depth: 0.24, bars: 3 },
-  { name: 'mid',  z: Z.mid,  closeness: 0.32, colorChance: 0.34, scale: 1.35, outline: 0.12, depth: 0.3, bars: 4 },
-  { name: 'near', z: Z.near, closeness: 0.58, colorChance: 0.40, scale: 0.95, outline: 0.14, depth: 0.36, bars: 2 },
-];
+  { name: 'far',  z: Z.far,  closeness: 0.10, colorChance: 0.26, scale: 1.9, outline: 0.10, depth: 0.24, bars: 3 },
+  { name: 'mid',  z: Z.mid,  closeness: 0.30, colorChance: 0.34, scale: 1.35, outline: 0.12, depth: 0.3, bars: 4 },
+  { name: 'near', z: Z.near, closeness: 0.62, colorChance: 0.40, scale: 0.95, outline: 0.14, depth: 0.36, bars: 2 },
+].map((layer) => {
+  const p = paletteFor(LAYER_HAZE[layer.name]);
+  return {
+    ...layer,
+    // flat() caches per colour, so these stay shared and survive disposeTree
+    accents: [p.red, p.yellow, p.blue],
+    white: p.white,
+    line: flat(p.black),
+  };
+});
 
 function pick(rng, arr) { return arr[Math.floor(rng() * arr.length) % arr.length]; }
 
@@ -57,7 +79,7 @@ function composeBand(rng, span, layer) {
     const y = (rng() * 2 - 1) * BAND_H * 0.55;
     const isColor = rng() < layer.colorChance;
     const block = makeBlock(w, h, {
-      color: isColor ? pick(rng, BACKDROP_ACCENTS) : BACKDROP.white,
+      color: isColor ? pick(rng, layer.accents) : layer.white,
       outline: layer.outline,
       depth: layer.depth,
       z: 0,
@@ -74,7 +96,7 @@ function composeBand(rng, span, layer) {
     const by = (rng() * 2 - 1) * BAND_H * 0.6;
     const bw = vertical ? 0.22 : span * (0.35 + rng() * 0.5);
     const bh = vertical ? BAND_H * (0.4 + rng() * 0.7) : 0.22;
-    group.add(box(bw, bh, layer.depth * 1.1, BACKDROP_LINE, bx, by, 0.02));
+    group.add(box(bw, bh, layer.depth * 1.1, layer.line, bx, by, 0.02));
   }
   return group;
 }

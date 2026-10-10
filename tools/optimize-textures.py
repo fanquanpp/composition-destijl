@@ -31,9 +31,11 @@ except ImportError:
 ROOT = Path(__file__).resolve().parent.parent
 TEXTURES = ROOT / "assets" / "textures"
 
-# Comfortably above the largest on-screen size at 4K (8/16.5 * 2160 ≈ 1050 px),
-# so the downscale is invisible but the payload drops by about a third.
-MAX_EDGE = 1024
+# The largest painting is drawn 8.4 world units tall in a 16.5-unit view, so even
+# on a 4K screen at 2x it lands at ~1100 device pixels. 1280 keeps it above that
+# — never upscaled, on any realistic display — while still cutting the payload by
+# about half. Images already inside the bound are left byte-for-byte alone.
+MAX_EDGE = 1280
 QUALITY = 82
 
 
