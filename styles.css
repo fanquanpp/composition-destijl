@@ -11,14 +11,20 @@
 @font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Regular.ttf') format('truetype'); font-weight: 400; font-display: block; }
 @font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Bold.ttf') format('truetype'); font-weight: 700; font-display: block; }
 /* CJK. Archivo Black, Jost and Space Mono are Latin-only, so Chinese would fall
-   back to whatever the OS picks. This is the full 31k-glyph face, not a subset —
-   a subset would silently fall back per missing character and break the
-   typography mid-sentence. Variable, so headings can still be heavy. */
+   back to whatever the OS picks.
+   This is a SUBSET of Noto Sans SC: 173 KB instead of 16.9 MB (99% smaller),
+   built from the characters the UI actually uses by tools/subset-font.py. The
+   full face is unusably slow to fetch and, on an unreliable link, never arrives
+   at all. A subset has exactly one failure mode — a character added later is
+   missing and falls back silently — so tools/check-font.mjs re-derives the
+   character set and fails the build if this font can no longer cover the text.
+   Variable, so headings can still be heavy. `swap`, not `block`: a brief reflow
+   beats ever hiding the text. */
 @font-face {
   font-family: 'Noto Sans SC';
-  src: url('assets/fonts/NotoSansSC-Variable.ttf') format('truetype-variations');
+  src: url('assets/fonts/NotoSansSC-Subset.woff2') format('woff2');
   font-weight: 100 900;
-  font-display: block;
+  font-display: swap;
 }
 
 /* ---- palette -------------------------------------------------------------- */

@@ -9,7 +9,8 @@
  * resulting project can be redistributed. Files already present are skipped
  * unless --force is passed. The zip cache lives in tools/.cache/.
  */
-import { mkdir, writeFile, readFile, rm, stat } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, rm, stat, copyFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
@@ -45,12 +46,16 @@ const FILES = [
     credit: 'Space Mono by Colophon Foundry', license: 'SIL OFL 1.1' },
   {
     // CJK. The Latin faces have no Chinese glyphs at all, so this is not
-    // optional once the UI can be Chinese — and it must be the FULL face, not a
-    // subset, or characters outside the subset silently fall back to a system
-    // font and the typography breaks. It is large; that is the price of CJK.
+    // optional once the UI can be Chinese.
+    //
+    // It downloads to the CACHE, not to assets/: the full face is 16.9 MB, which
+    // is unusably slow over a network and simply never arrives on a flaky link.
+    // The step below subsets it down to the characters the UI uses (~173 KB) and
+    // only that ships. tools/check-font.mjs fails the build if the subset ever
+    // stops covering the text.
     url: GF('ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf'),
-    dest: 'assets/fonts/NotoSansSC-Variable.ttf', kind: 'binary', min: 1000000,
-    credit: 'Noto Sans SC by Google / Adobe', license: 'SIL OFL 1.1',
+    dest: 'tools/.cache/notosanssc-variable.ttf', kind: 'binary', min: 1000000,
+    credit: 'Noto Sans SC by Google / Adobe (subset to the UI character set)', license: 'SIL OFL 1.1',
   },
   { url: GF('ofl/notosanssc/OFL.txt'), dest: 'assets/fonts/OFL-NotoSansSC.txt', kind: 'text', min: 3000,
     credit: 'Noto Sans SC license', license: 'SIL OFL 1.1' },
@@ -287,6 +292,24 @@ async function main() {
     } catch (err) {
       console.log(`FAILED — ${err.message}`);
       failed++;
+    }
+  }
+
+  // ---- CJK subset ----------------------------------------------------------
+  // Subsetting needs fontTools, which is a Python package. If it is missing we
+  // ship the full face instead of failing: a large font is worse than a small
+  // one, but a missing font is worse than both.
+  const fullFont = join(ROOT, 'tools/.cache/notosanssc-variable.ttf');
+  if (await exists(fullFont)) {
+    const res = spawnSync('python', [join('tools', 'subset-font.py')], { cwd: ROOT, encoding: 'utf8' });
+    if (res.status === 0) {
+      process.stdout.write(res.stdout.replace(/^/gm, '  '));
+    } else {
+      console.log('  ! CJK subsetting unavailable — falling back to the full 16.9 MB face');
+      const reason = (res.stderr || '').trim().split(String.fromCharCode(10)).filter(Boolean).pop();
+      if (reason) console.log('    ' + reason);
+      console.log('    (install fonttools + brotli, then re-run, to get the ~173 KB subset)');
+      await copyFile(fullFont, join(ROOT, 'assets/fonts/NotoSansSC-Variable.ttf'));
     }
   }
 

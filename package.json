@@ -6,7 +6,10 @@
   "description": "COMPOSITION — a De Stijl platformer rendered with three.js",
   "scripts": {
     "serve": "node tools/serve.mjs",
+    "serve:prefix": "node tools/serve-prefixed.mjs",
     "assets": "node tools/fetch-assets.mjs",
-    "validate": "node tools/validate-levels.mjs"
+    "validate": "node tools/validate-levels.mjs",
+    "check-font": "node tools/check-font.mjs",
+    "check": "node tools/validate-levels.mjs && node tools/check-font.mjs"
   }
 }

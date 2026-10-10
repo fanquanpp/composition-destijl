@@ -30,9 +30,12 @@ node tools/serve.mjs
 也可以：
 
 ```bash
-npm run serve       # 同上
-npm run validate    # 校验三个关卡的几何与可达性
-npm run assets      # 重新下载第三方素材
+npm run serve        # 同上
+npm run validate     # 校验三个关卡的几何与可达性（含 ASCII 地图）
+npm run check-font   # 校验中文字体子集是否还能覆盖 UI 里所有字
+npm run check        # 上面两条一起跑
+npm run assets       # 重新下载素材并重裁中文字体子集
+npm run serve:prefix # 按 /<repo>/ 子路径本地起服务，模拟 GitHub Pages
 ```
 
 ## 操作
@@ -200,7 +203,7 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 第三方素材全部由 `tools/fetch-assets.mjs` 从原始公开来源下载，并在 `assets/CREDITS.md` 里逐条记录来源与许可：
 
 - **three.js r186.1**（MIT）— 本地化到 `vendor/three/`
-- **字体**（SIL OFL 1.1）：Archivo Black（标题）、Jost*（界面）、Space Mono（数字）、Noto Sans SC（中文，31036 字形完整版）
+- **字体**（SIL OFL 1.1）：Archivo Black（标题）、Jost*（界面）、Space Mono（数字）、Noto Sans SC（中文，**按用到的字裁成的子集，173 KB**）
 - **Piet Mondrian 画作 5 幅**（公有领域，来自 Wikimedia Commons）：标题画面、通关画面，以及挂在关卡背景里的画框
 - **音效**（CC0，来自 OpenGameArt）：Deva 的《8-bit Sound Effect Pack Vol. 001》14 个采样，qhobbes 的落地音，artisticdude 的挥击声，rubberduck 的碎裂/落地声，以及这一轮为节奏平台和音阶条新增的 4 个：cemkalyoncu 的节拍器 `tick`、IgnasD 的 `Timetick`、BjarneK_92 的铃音（运行时按半音重新定调）、Hazmat Harry 的金属撞击
 
@@ -225,7 +228,17 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 
 **字体是这件事里最容易被忽略的坑**：Archivo Black、Jost、Space Mono 全都是纯拉丁字体，一个中文字形都没有。不换字体的话中文会掉到系统字体上，和周围排版完全脱节。所以新增了 Noto Sans SC，并把三个字体栈都改成「拉丁字体在前、中文字体在后」——浏览器是**逐字形**回退的，所以英文保留风格派的几何字形，中文走 Noto，两者在同一行里也不打架。
 
-顺带一提，`speed-rouge` 里那个 Noto Sans SC 只有 **1937 个字形**，是个子集，只能覆盖那个项目用到的字。这里特意换成**完整版（31036 字形）**：子集看着省空间，但一旦写到一个子集里没有的字，那个字会静默换成系统字体——同一句话里两种字形，比整体用系统字体还难看。
+### 中文字体为什么要做子集
+
+完整版 Noto Sans SC 是 **16.9 MB / 31036 字形**。放在磁盘上无所谓，放到网络上是要命的：先是慢，然后在连接不稳的时候**根本下不下来**——而字体下不来的后果是每个中文字都静默换成系统字体，整页排版崩掉。
+
+这不是假设。部署到 GitHub Pages 之后实测：同一台机器上 629 KB 的图片能正常拉取，**17.7 MB 的字体连续四次重试全部失败**（连接被重置）。这个环境下大于十几 MB 的传输基本过不去——之前 `git push` 走 HTTPS 也是同样原因失败的。
+
+所以 `tools/subset-font.py` 按**实际用到的字**裁出子集：**16.9 MB → 173 KB，小 99%**，并且保留可变字重轴，标题照样能压到很粗。整个 UI 只用了 490 个字符（其中 378 个汉字）。
+
+子集只有一个失效方式，而且是**静默**的：以后新加的字不在子集里，浏览器悄悄换一个系统字体，一句话里出现两种字形。所以有 `tools/check-font.mjs` 把这件事挡住——它重新扫描 UI 源码、跟字体实际覆盖范围比对，缺字就**直接构建失败**并告诉你去跑 `npm run assets`。我把子集故意改坏试过，它确实会报错退出（exit 1）。
+
+> 顺带一提，`speed-rouge` 里那个 Noto Sans SC 只有 1937 个字形，也是个子集，但只覆盖那个项目用到的字，所以没法直接拿来用。
 
 ## 无障碍与进度
 
@@ -240,7 +253,8 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 - 浏览器切到后台时 `requestAnimationFrame` 会被节流，游戏画面会停住（回来会继续，不会快进——累加器有上限保护）。切换标签页时如果正在游戏中，`visibilitychange` 会尝试自动暂停，但某些内嵌浏览器面板不会触发该事件。
 - 关卡 III 的竖井需要连续蹬墙跳，是本作最陡的一段难度曲线。
 - 没有移动端布局专门适配：小屏上 HUD 会换行，触屏按键会覆盖底部。
-- 中文字体（Noto Sans SC 完整版）有 17 MB，是整个仓库里最大的单个文件。这是「绝不出现字形缺失」的代价。要压体积可以用 `fonttools` 按实际用到的字符做子集，但本项目没有为了这个引入构建依赖。
+- 中文字体是**按用到的字裁出的子集**（173 KB）。代价是：新增中文文案后必须重跑 `npm run assets` 重新裁一次，否则新字会掉回系统字体。这件事由 `npm run check-font` 拦截，不会静默上线。
+- 裁子集用到 Python 的 `fonttools` + `brotli`。没装也不会坏——`npm run assets` 会退回直接使用 16.9 MB 完整版并在终端里警告，`check-font` 也会提示你体积异常。
 - 只有一种中文（简繁合一），没有做繁体、日文、韩文。
 - 没有音频文件时音乐会等到首次用户交互才开始（浏览器自动播放策略），这是预期行为。
 
