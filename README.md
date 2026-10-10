@@ -1,8 +1,19 @@
 # COMPOSITION — 一个风格派（De Stijl）平台跳跃游戏
 
+**▶ 在线试玩 <https://fanquanpp.github.io/composition-destijl/>** · 3 关约 20 分钟 · 中英双语 · 无构建步骤、零依赖
+
 用 three.js 写的完整平台跳跃游戏。整个世界按**风格派**（De Stijl / 荷兰风格派运动，Mondrian 与 van Doesburg 那一派）的规则构建：只有矩形、只有直线、只用红黄蓝三原色加白与黑，没有圆角、没有渐变、没有阴影、没有光照。
 
 游戏本体是一个 3D 场景，但相机是**正交投影**——因为风格派是平的，而且正交相机让屏幕上的跳跃弧线和物理模拟中的弧线完全一致，跳跃距离可以精确判断。
+
+> **English** — COMPOSITION is a complete platformer built with three.js, and the
+> whole world obeys the rules of De Stijl: rectangles only, straight lines only,
+> the three primary colours plus white and black, no rounded corners, no
+> gradients, no shadows, no lighting. It is a 3D scene seen through an
+> **orthographic** camera — true to the style, and the right choice for
+> platforming, because the jump arc on screen is exactly the jump arc in the
+> simulation. Three levels, bilingual EN/中文, no build step, zero dependencies.
+> **[Play it in the browser →](https://fanquanpp.github.io/composition-destijl/)**
 
 ```
     ┌──────────────────────────────────────────────────┐
@@ -13,6 +24,14 @@
     ────────────────────────────────────────────────────
 ```
 
+## 目录
+
+- [快速开始](#快速开始) · [操作](#操作) · [玩法内容](#玩法内容)
+- [项目结构](#项目结构) · [关卡怎么改](#关卡怎么改)
+- [视觉是怎么做出来的](#视觉是怎么做出来的) · [手感参数](#手感参数) · [素材](#素材)
+- [多语言（中文 / English）](#多语言中文--english) · [无障碍与进度](#无障碍与进度)
+- [代码审计](#代码审计) · [已知限制](#已知限制) · [许可](#许可)
+
 ---
 
 ## 快速开始
@@ -20,7 +39,7 @@
 需要 Node 18+（只用来跑本地静态服务器，游戏本身不需要构建步骤）。
 
 ```bash
-cd de-stijl-platformer
+cd composition-destijl
 node tools/serve.mjs
 # 打开 http://127.0.0.1:8080/
 ```
@@ -31,7 +50,7 @@ node tools/serve.mjs
 
 ```bash
 npm run serve        # 本地起服务（默认 8080）
-npm run serve:prefix # 按 /de-stijl-platformer/ 子路径起服务，模拟 GitHub Pages
+npm run serve:prefix # 按 /composition-destijl/ 子路径起服务，模拟 GitHub Pages
 npm run validate     # 校验三个关卡的几何与可达性（含 ASCII 地图）
 npm run check-font   # 校验中文字体子集是否还能覆盖 UI 里所有字
 npm run check        # 上面两条一起跑
@@ -82,7 +101,7 @@ npm run clean        # 删掉 tools/.cache（下载缓存，可用 assets 重新
 下载缓存也在里面（`tools/.cache/`，已 gitignore，`npm run clean` 可删）。
 
 ```
-de-stijl-platformer/
+composition-destijl/
 ├── index.html              入口：import map + 图层容器
 ├── styles.css              全部 UI 样式（风格派规则都写在里面）
 ├── package.json            只有几个 npm script，没有依赖、没有构建步骤
@@ -197,7 +216,7 @@ npm run validate
 
 ```js
 runSpeed: 9.6         jumpSpeed: 20.4       gravity: 62
-gravityHold: 50       // 上升且按住跳时重力更小 → 满跳约 4.2 格
+riseHold: 0.82        // 上升且按住跳时重力 ×0.82 → 满跳约 4.2 格
 doubleJumpSpeed: 17.4 // 二段跳后总高约 6.9 格
 coyoteTime: 0.10      jumpBuffer: 0.13      // 宽容输入
 wallJumpX: 11.6       wallJumpY: 18.8       // 蹬墙跳
@@ -227,14 +246,18 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 
 - **three.js r186.1**（MIT）— 本地化到 `vendor/three/`
 - **字体**（SIL OFL 1.1）：Archivo Black（标题）、Jost*（界面）、Space Mono（数字）、Noto Sans SC（中文，**按用到的字裁成的子集，173 KB**）
-- **Piet Mondrian 画作 5 幅**（公有领域，来自 Wikimedia Commons）：标题画面、通关画面，以及挂在关卡背景里的画框
-- **音效**（CC0，来自 OpenGameArt）：Deva 的《8-bit Sound Effect Pack Vol. 001》14 个采样，qhobbes 的落地音，artisticdude 的挥击声，rubberduck 的碎裂/落地声，以及这一轮为节奏平台和音阶条新增的 4 个：cemkalyoncu 的节拍器 `tick`、IgnasD 的 `Timetick`、BjarneK_92 的铃音（运行时按半音重新定调）、Hazmat Harry 的金属撞击
+- **Piet Mondrian 画作 5 幅**（公有领域，来自 Wikimedia Commons）：标题画面、通关画面，以及挂在关卡背景里的画框。已重新压到最长边 1024px，1.4 MB → 0.5 MB（见下）
+- **音效**（CC0，来自 OpenGameArt）：Deva 的《8-bit Sound Effect Pack Vol. 001》13 个采样，qhobbes 的落地音，artisticdude 的挥击声，rubberduck 的碎裂/落地声，以及为节奏平台和音阶条准备的 3 个：cemkalyoncu 的节拍器 `tick`、IgnasD 的 `Timetick`、BjarneK_92 的铃音（运行时按半音重新定调）
 
 **关于字体**：专门查过有没有比 Jost 更「正宗」的风格派字体可用。结论是没有——van Doesburg 1919 年那套字母表没有任何 OFL/CC0/公有领域的复刻，能找到的 De Stijl 字体都是「仅限个人使用」。Jost 是 Futura（1927，包豪斯时期）的复刻，已经是许可干净的前提下历史最准确的选择，所以没有换。
 
-重新下载：`npm run assets`（幂等，已存在的文件会跳过；`--force` 强制刷新）。下载脚本会校验文件头（TTF/JPG 魔数）、检查文件大小、失败自动重试，并在缩略图 400 时回退到原图。
+重新下载：`npm run assets`（幂等，已存在的文件会跳过；`--force` 强制刷新）。下载脚本会校验文件头（TTF/JPG 魔数）、检查文件大小、失败自动重试，并在缩略图 400 时回退到原图。跑完下载后它会接着做两步压缩：`tools/subset-font.py` 重裁中文字体子集，`tools/optimize-textures.py` 把画作重压到最长边 1024px（幂等，已经够小的文件不碰）。
 
-**除上面这些以外，游戏里的一切——地形、角色、敌人、背景构图、UI、菜单、粒子——都是运行时用代码生成的**，没有一张位图贴图、没有精灵图、没有模型文件。
+**画作是唯一没法用 gzip 省的一类素材**：JPEG 本身就是压缩格式，1.4 MB 会原样付在每一次访问上。游戏里每幅画最大也就 8 格高、视口 16.5 格，大部分像素根本没被采样到，所以按最长边 1024px 重压后只剩 0.5 MB，看不出差别。JS 和 CSS 则交给 GitHub Pages 的 gzip 处理。
+
+**启动顺序**：5 幅画作会挡住第一帧（标题画面和关卡背景都要用），音效则不挡——它们在标题界面背后解码进同一张采样表，没到位的采样用合成兜底，所以启动不会为 19 段音频等待。
+
+**除上面这些以外，游戏里的一切——地形、角色、敌人、背景构图、UI、菜单、粒子——都是运行时用代码生成的**：没有精灵图、没有模型文件。唯一的位图就是上面那 5 幅公有领域的蒙德里安画作。
 
 ---
 
@@ -257,7 +280,7 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 
 这不是假设。部署到 GitHub Pages 之后实测：同一台机器上 629 KB 的图片能正常拉取，**17.7 MB 的字体连续四次重试全部失败**（连接被重置）。这个环境下大于十几 MB 的传输基本过不去——之前 `git push` 走 HTTPS 也是同样原因失败的。
 
-所以 `tools/subset-font.py` 按**实际用到的字**裁出子集：**16.9 MB → 173 KB，小 99%**，并且保留可变字重轴，标题照样能压到很粗。整个 UI 只用了 490 个字符（其中 378 个汉字）。
+所以 `tools/subset-font.py` 按**实际用到的字**裁出子集：**16.9 MB → 173 KB，小 99%**，并且保留可变字重轴，标题照样能压到很粗。整个 UI 只用了 491 个字符（其中 379 个汉字）。
 
 子集只有一个失效方式，而且是**静默**的：以后新加的字不在子集里，浏览器悄悄换一个系统字体，一句话里出现两种字形。所以有 `tools/check-font.mjs` 把这件事挡住——它重新扫描 UI 源码、跟字体实际覆盖范围比对，缺字就**直接构建失败**并告诉你去跑 `npm run assets`。我把子集故意改坏试过，它确实会报错退出（exit 1）。
 
@@ -284,7 +307,7 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 - 关卡 III 的竖井需要连续蹬墙跳，是本作最陡的一段难度曲线。
 - 没有移动端布局专门适配：小屏上 HUD 会换行，触屏按键会覆盖底部。
 - 中文字体是**按用到的字裁出的子集**（173 KB）。代价是：新增中文文案后必须重跑 `npm run assets` 重新裁一次，否则新字会掉回系统字体。这件事由 `npm run check-font` 拦截，不会静默上线。
-- 裁子集用到 Python 的 `fonttools` + `brotli`。没装也不会坏——`npm run assets` 会退回直接使用 16.9 MB 完整版并在终端里警告，`check-font` 也会提示你体积异常。
+- 裁子集与压画作用到 Python 的 `fonttools` + `brotli` + `Pillow`。没装也不会坏——`npm run assets` 会退回使用 16.9 MB 完整版字体和原尺寸画作，并在终端里警告。
 - 只有一种中文（简繁合一），没有做繁体、日文、韩文。
 - 没有音频文件时音乐会等到首次用户交互才开始（浏览器自动播放策略），这是预期行为。
 

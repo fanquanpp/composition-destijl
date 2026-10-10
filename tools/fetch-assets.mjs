@@ -18,7 +18,7 @@ import zlib from 'node:zlib';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE = join(ROOT, 'tools', '.cache');
 const FORCE = process.argv.includes('--force');
-const UA = 'de-stijl-platformer/1.0 (asset fetch; node)';
+const UA = 'composition-destijl/1.0 (asset fetch; node)';
 
 const THREE_VERSION = '0.186.1';
 const JSDE = (p) => `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/${p}`;
@@ -250,7 +250,7 @@ async function main() {
   const credits = [];
   let downloaded = 0, skipped = 0, failed = 0;
 
-  console.log(`\n  de-stijl-platformer · asset fetch\n  root: ${ROOT}\n`);
+  console.log(`\n  composition-destijl · asset fetch\n  root: ${ROOT}\n`);
 
   for (const f of FILES) {
     const dest = join(ROOT, f.dest);
