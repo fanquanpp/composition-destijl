@@ -248,4 +248,4 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 
 ## 许可
 
-本项目代码可自由使用。第三方素材的许可见 `assets/CREDITS.md`（MIT / SIL OFL 1.1 / CC0 / 公有领域）。
+代码采用 **MIT 许可**（见 `LICENSE`）。**第三方素材不在 MIT 覆盖范围内**，各自保留原许可：字体是 SIL OFL 1.1，蒙德里安画作是公有领域，音效是 CC0。逐文件来源清单见 `assets/CREDITS.md`。

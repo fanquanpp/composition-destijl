@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-The MIT licence above covers the SOURCE CODE of this project.
-
-Third-party assets keep their own licences and are NOT covered by it:
-fonts are SIL OFL 1.1, the Mondrian paintings are public domain, and the sound
-effects are CC0. The per-file list with sources is in assets/CREDITS.md.
