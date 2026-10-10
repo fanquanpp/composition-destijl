@@ -1,12 +1,12 @@
 {
-  "name": "composition-destijl-platformer",
+  "name": "de-stijl-platformer",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "COMPOSITION — a De Stijl platformer rendered with three.js",
   "scripts": {
     "serve": "node tools/serve.mjs",
-    "serve:prefix": "node tools/serve.mjs --prefix=composition-destijl",
+    "serve:prefix": "node tools/serve.mjs --prefix=de-stijl-platformer",
     "assets": "node tools/fetch-assets.mjs",
     "validate": "node tools/validate-levels.mjs",
     "check-font": "node tools/check-font.mjs",

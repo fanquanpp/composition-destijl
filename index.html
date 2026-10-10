@@ -7,6 +7,11 @@
 <meta name="description" content="A platformer rendered as a De Stijl composition: primary colours, black grid lines, flat planes. Built with three.js.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
+<!-- Start the two largest downloads before the module graph is discovered: the
+     three.js runtime (the whole renderer) and the face the boot title is set in. -->
+<link rel="modulepreload" href="./vendor/three/three.module.js">
+<link rel="modulepreload" href="./vendor/three/three.core.js">
+<link rel="preload" href="assets/fonts/ArchivoBlack-Regular.ttf" as="font" type="font/ttf" crossorigin>
 <script type="importmap">
 {
   "imports": {

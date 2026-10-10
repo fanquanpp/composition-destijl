@@ -227,14 +227,17 @@ class Game {
       this._refreshScreen();
     });
 
-    await this.assets.loadAll({
-      audioContext: this.audio.ctx,
+    await this.assets.loadTextures({
       onProgress: (done, total, label) => {
         const pct = total ? Math.round((done / total) * 100) : 0;
         this.bootFill.style.width = `${pct}%`;
         this.bootStatus.textContent = done >= total ? t('boot.ready') : t('boot.loading', { label });
       },
     });
+
+    // Hand audio the live sample map now, then let the sound effects decode into
+    // it behind the title screen. Nothing has to wait for audio: until a sample
+    // arrives, its sound is synthesised.
     this.audio.setSamples(this.assets.samples);
 
     // build the first level so the title screen has the real world behind it
@@ -247,6 +250,9 @@ class Game {
     this.showTitle();
     this.lastTime = performance.now();
     this.raf = requestAnimationFrame((t) => this.loop(t));
+
+    // fire and forget: the title screen and the first level are already playable
+    this.assets.loadSounds({ audioContext: this.audio.ctx }).catch(() => {});
   }
 
   // ---- level lifecycle -----------------------------------------------------
@@ -626,6 +632,9 @@ class Game {
     this.lastTime = now;
     this.ctx.time += frame;
 
+    // Gamepads have no events: their state only exists when it is polled, so
+    // refresh it before anything reads input this frame.
+    this.input.poll();
     this._handleMenuInput();
 
     if (this.state === STATE.PLAYING) {

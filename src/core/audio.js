@@ -106,6 +106,9 @@ const SYNTH = {
   grappleHit:     'noise:0.11:0.20:1500:bandpass',
   crumble:        'noise:0.36:0.22:700:lowpass',
   landHeavy:      'noise:0.20:0.24:480:lowpass',
+  // the metronome the rhythm platforms step to, and its warning
+  rhythmTick:     'noise:0.045:0.30:3400:highpass',
+  rhythmWarn:     'sweep:1180:620:0.11:triangle:0.22',
 };
 
 export class AudioEngine {

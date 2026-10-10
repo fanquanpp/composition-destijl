@@ -31,11 +31,11 @@ node tools/serve.mjs
 
 ```bash
 npm run serve        # 本地起服务（默认 8080）
-npm run serve:prefix # 按 /composition-destijl/ 子路径起服务，模拟 GitHub Pages
+npm run serve:prefix # 按 /de-stijl-platformer/ 子路径起服务，模拟 GitHub Pages
 npm run validate     # 校验三个关卡的几何与可达性（含 ASCII 地图）
 npm run check-font   # 校验中文字体子集是否还能覆盖 UI 里所有字
 npm run check        # 上面两条一起跑
-npm run assets       # 重新下载素材并重裁中文字体子集
+npm run assets       # 重新下载素材、重裁中文字体子集、压缩画作
 npm run clean        # 删掉 tools/.cache（下载缓存，可用 assets 重新生成）
 ```
 
@@ -120,6 +120,7 @@ de-stijl-platformer/
 │   ├── serve.mjs           零依赖静态服务器（--prefix 可模拟 Pages 子路径）
 │   ├── fetch-assets.mjs    素材下载流水线（含 ZIP 解包、校验、生成 CREDITS）
 │   ├── subset-font.py      把中文字体裁成只含用到的字（16.9 MB → 173 KB）
+│   ├── optimize-textures.py 把五幅画作压到 1024px 上限（1.4 MB → 0.5 MB）
 │   ├── check-font.mjs      ★ 字体覆盖检查：UI 里出现子集没有的字就构建失败
 │   └── validate-levels.mjs ★ 关卡校验器（几何错误 + 可达性）
 ├── vendor/three/           three.js（本地化，离线可用）

@@ -176,7 +176,11 @@ export class Input {
     this.touchPressed.clear();
   }
 
-  /** Must be called once per animation frame, after the sim has consumed edges. */
+  /**
+   * Refresh devices that report by polling rather than by event. Must be called
+   * once per animation frame, before anything reads input: a gamepad only exists
+   * to the browser when it is asked, so skipping this leaves controllers dead.
+   */
   poll() {
     this._pollGamepad();
   }

@@ -6,7 +6,7 @@
  * opening index.html from disk will not work — run this instead.
  *
  *   node tools/serve.mjs                                  → http://127.0.0.1:8080/
- *   node tools/serve.mjs --prefix=composition-destijl      → .../composition-destijl/
+ *   node tools/serve.mjs --prefix=de-stijl-platformer      → .../de-stijl-platformer/
  *
  * The prefix exists to reproduce a GitHub Pages *project site*, which is served
  * from https://<user>.github.io/<repo>/ rather than from a domain root. Any path

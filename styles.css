@@ -5,11 +5,15 @@
    primary colours plus white used as flat planes.
    ========================================================================== */
 
-/* ---- typefaces (downloaded locally by tools/fetch-assets.mjs) ------------- */
-@font-face { font-family: 'Archivo Black'; src: url('assets/fonts/ArchivoBlack-Regular.ttf') format('truetype'); font-weight: 400; font-display: block; }
-@font-face { font-family: 'Jost'; src: url('assets/fonts/Jost-Variable.ttf') format('truetype'); font-weight: 100 900; font-display: block; }
-@font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Regular.ttf') format('truetype'); font-weight: 400; font-display: block; }
-@font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Bold.ttf') format('truetype'); font-weight: 700; font-display: block; }
+/* ---- typefaces (downloaded locally by tools/fetch-assets.mjs) -------------
+   All of them `swap`, not `block`. `block` hides text for up to three seconds
+   while the face downloads, and the very first thing on screen is the boot card:
+   a blank title is the worst possible first impression. A brief reflow beats
+   ever hiding the text. */
+@font-face { font-family: 'Archivo Black'; src: url('assets/fonts/ArchivoBlack-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Jost'; src: url('assets/fonts/Jost-Variable.ttf') format('truetype'); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
 /* CJK. Archivo Black, Jost and Space Mono are Latin-only, so Chinese would fall
    back to whatever the OS picks.
    This is a SUBSET of Noto Sans SC: 173 KB instead of 16.9 MB (99% smaller),
@@ -18,8 +22,7 @@
    at all. A subset has exactly one failure mode — a character added later is
    missing and falls back silently — so tools/check-font.mjs re-derives the
    character set and fails the build if this font can no longer cover the text.
-   Variable, so headings can still be heavy. `swap`, not `block`: a brief reflow
-   beats ever hiding the text. */
+   Variable, so headings can still be heavy. */
 @font-face {
   font-family: 'Noto Sans SC';
   src: url('assets/fonts/NotoSansSC-Subset.woff2') format('woff2');

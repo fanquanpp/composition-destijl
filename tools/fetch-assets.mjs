@@ -180,13 +180,6 @@ const SFX_SINGLES = [
     credit: 'BjarneK_92, "Pleasing Bell Sound Effect" — https://opengameart.org/content/pleasing-bell-sound-effect',
     license: 'CC0 1.0',
   },
-  {
-    url: OGA + 'clink1_0.wav',
-    cache: 'clink1.wav',
-    dest: 'tone-clink.wav',
-    credit: 'Hazmat Harry, "Metal Impact Sounds" — https://opengameart.org/content/metal-impact-sounds',
-    license: 'CC0 1.0',
-  },
 ];
 
 const bytes = (n) => (n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(2)} MB`);
@@ -311,6 +304,20 @@ async function main() {
       console.log('    (install fonttools + brotli, then re-run, to get the ~173 KB subset)');
       await copyFile(fullFont, join(ROOT, 'assets/fonts/NotoSansSC-Variable.ttf'));
     }
+  }
+
+  // ---- painting optimisation ------------------------------------------------
+  // The Mondrian JPEGs come off Wikimedia at whatever resolution the source has,
+  // far more than the backdrop ever samples, and gzip cannot shrink a JPEG. This
+  // re-encodes them down to a sane size (see tools/optimize-textures.py). Needs
+  // Pillow; if it is missing the full-size files simply ship, as with the font.
+  const texRes = spawnSync('python', [join('tools', 'optimize-textures.py')], { cwd: ROOT, encoding: 'utf8' });
+  if (texRes.status === 0 && texRes.stdout) {
+    process.stdout.write(texRes.stdout.replace(/^/gm, '  '));
+  } else {
+    console.log('  ! painting optimisation skipped — shipping the full-size JPEGs');
+    const reason = (texRes.stderr || '').trim().split(String.fromCharCode(10)).filter(Boolean).pop();
+    if (reason) console.log('    ' + reason);
   }
 
   // ---- sound effects -------------------------------------------------------

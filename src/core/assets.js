@@ -36,6 +36,10 @@ const SOUNDS = {
   grappleHit:     'assets/audio/grapple-hit.ogg',
   crumble:        'assets/audio/crumble.ogg',
   landHeavy:      'assets/audio/land-heavy.ogg',
+  // rhythm platforms and tone bars — played from entities.js, so they belong here
+  rhythmTick:     'assets/audio/rhythm-tick.ogg',
+  rhythmWarn:     'assets/audio/rhythm-warn.ogg',
+  toneBell:       'assets/audio/tone-bell.ogg',
 };
 
 export class AssetLibrary {
@@ -49,21 +53,38 @@ export class AssetLibrary {
   getTexture(name) { return this.textures.get(name) ?? null; }
 
   /**
+   * Textures are what the world is built from, so these hold up the first frame.
+   *
+   * @param {object} opts
+   * @param {(done:number,total:number,label:string)=>void} [opts.onProgress]
+   */
+  async loadTextures({ onProgress = () => {} } = {}) {
+    const tasks = Object.entries(IMAGES).map(([name, url]) => ({
+      name, kind: 'image', run: () => this._loadTexture(name, url),
+    }));
+    await this._runTasks(tasks, onProgress);
+    return this;
+  }
+
+  /**
+   * Sound effects decode into `this.samples` in place, so they can arrive behind
+   * the title screen: the world renders without them, and audio.play() synthesises
+   * any sample that has not landed yet. Nothing has to wait for audio.
+   *
    * @param {object} opts
    * @param {(done:number,total:number,label:string)=>void} [opts.onProgress]
    * @param {AudioContext} [opts.audioContext] used to decode sound effects
    */
-  async loadAll({ onProgress = () => {}, audioContext = null } = {}) {
-    const tasks = [];
-    for (const [name, url] of Object.entries(IMAGES)) {
-      tasks.push({ name, kind: 'image', run: () => this._loadTexture(name, url) });
-    }
-    if (audioContext) {
-      for (const [name, url] of Object.entries(SOUNDS)) {
-        tasks.push({ name, kind: 'sound', run: () => this._loadSample(name, url, audioContext) });
-      }
-    }
+  async loadSounds({ onProgress = () => {}, audioContext = null } = {}) {
+    if (!audioContext) return this;
+    const tasks = Object.entries(SOUNDS).map(([name, url]) => ({
+      name, kind: 'sound', run: () => this._loadSample(name, url, audioContext),
+    }));
+    await this._runTasks(tasks, onProgress);
+    return this;
+  }
 
+  async _runTasks(tasks, onProgress) {
     let done = 0;
     onProgress(0, tasks.length, 'starting');
     // small batches: browsers cap concurrent connections per host
@@ -82,7 +103,6 @@ export class AssetLibrary {
         }
       }));
     }
-    return this;
   }
 
   _loadTexture(name, url) {
