@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>COMPOSITION — a De Stijl platformer</title>
+<meta name="description" content="A platformer rendered as a De Stijl composition: primary colours, black grid lines, flat planes. Built with three.js.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three/three.module.js"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app">
+  <canvas id="scene" aria-label="Game viewport"></canvas>
+
+  <!-- heads-up display: score, hearts, coins, timer -->
+  <div id="hud" class="layer" aria-live="polite"></div>
+
+  <!-- menus, cards, overlays -->
+  <div id="screens" class="layer"></div>
+
+  <!-- first-paint / asset loading -->
+  <div id="boot" class="layer">
+    <div class="boot-card">
+      <h1 class="boot-title">COMPOSITION</h1>
+      <p class="boot-sub">a de stijl platformer</p>
+      <div class="boot-meter"><div class="boot-fill" id="boot-fill"></div></div>
+      <p class="boot-status" id="boot-status">loading…</p>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="layer"><div class="boot-card"><h1 class="boot-title">COMPOSITION</h1>
+    <p class="boot-sub">This game needs JavaScript and WebGL. / 本游戏需要 JavaScript 与 WebGL。</p></div></div>
+  </noscript>
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

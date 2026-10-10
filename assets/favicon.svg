@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <!-- De Stijl favicon: white ground, black grid, three primaries. -->
+  <rect width="32" height="32" fill="#f2efe6"/>
+  <rect x="0" y="0" width="13" height="19" fill="#d40920"/>
+  <rect x="19" y="0" width="13" height="12" fill="#0b4ea2"/>
+  <rect x="13" y="19" width="13" height="13" fill="#f7d117"/>
+  <rect x="0" y="0" width="32" height="3" fill="#0d0d0d"/>
+  <rect x="0" y="29" width="32" height="3" fill="#0d0d0d"/>
+  <rect x="0" y="0" width="3" height="32" fill="#0d0d0d"/>
+  <rect x="29" y="0" width="3" height="32" fill="#0d0d0d"/>
+  <rect x="13" y="0" width="3" height="32" fill="#0d0d0d"/>
+  <rect x="0" y="19" width="32" height="3" fill="#0d0d0d"/>
+  <rect x="19" y="12" width="3" height="20" fill="#0d0d0d"/>
+</svg>

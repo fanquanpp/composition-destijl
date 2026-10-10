@@ -1,0 +1,6 @@
+# asset download cache (regenerate with: npm run assets)
+tools/.cache/
+# editor / OS noise
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,14 @@
+# Normalise text to LF in the repository. Declare the binaries explicitly so
+# nothing ever tries to treat a font, a wav or a jpeg as text.
+* text=auto
+*.ttf binary
+*.woff2 binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.webp binary
+*.7z binary
+*.zip binary

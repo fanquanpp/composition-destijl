@@ -1,0 +1,395 @@
+/* ==========================================================================
+   COMPOSITION — a De Stijl platformer
+   UI stylesheet. De Stijl rules enforced here: rectangles only, no rounded
+   corners, no gradients, no soft shadows, a strict black grid, and the three
+   primary colours plus white used as flat planes.
+   ========================================================================== */
+
+/* ---- typefaces (downloaded locally by tools/fetch-assets.mjs) ------------- */
+@font-face { font-family: 'Archivo Black'; src: url('assets/fonts/ArchivoBlack-Regular.ttf') format('truetype'); font-weight: 400; font-display: block; }
+@font-face { font-family: 'Jost'; src: url('assets/fonts/Jost-Variable.ttf') format('truetype'); font-weight: 100 900; font-display: block; }
+@font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Regular.ttf') format('truetype'); font-weight: 400; font-display: block; }
+@font-face { font-family: 'Space Mono'; src: url('assets/fonts/SpaceMono-Bold.ttf') format('truetype'); font-weight: 700; font-display: block; }
+/* CJK. Archivo Black, Jost and Space Mono are Latin-only, so Chinese would fall
+   back to whatever the OS picks. This is the full 31k-glyph face, not a subset —
+   a subset would silently fall back per missing character and break the
+   typography mid-sentence. Variable, so headings can still be heavy. */
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('assets/fonts/NotoSansSC-Variable.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-display: block;
+}
+
+/* ---- palette -------------------------------------------------------------- */
+:root {
+  --white:  #ffffff;
+  --paper:  #f2efe6;   /* the slightly warm off-white Mondrian grounds his canvases with */
+  --black:  #0d0d0d;
+  --red:    #d40920;
+  --blue:   #0b4ea2;
+  --yellow: #f7d117;
+  --line:   5px;       /* the canonical black grid line */
+  --line-thick: 7px;
+  --gap:    14px;
+  /* Each stack is Latin-face first, then the CJK face: the browser falls back
+     per glyph, so Latin keeps its De Stijl letterforms and Chinese renders in
+     Noto instead of a random system font. */
+  --cjk: 'Noto Sans SC';
+  --ui: 'Jost', var(--cjk), system-ui, sans-serif;
+  --display: 'Archivo Black', 'Jost', var(--cjk), system-ui, sans-serif;
+  --mono: 'Space Mono', var(--cjk), ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0 !important; }
+
+html, body {
+  height: 100%;
+  background: var(--paper);
+  color: var(--black);
+  font-family: var(--ui);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app { position: fixed; inset: 0; }
+
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: var(--paper); }
+
+.layer { position: absolute; inset: 0; pointer-events: none; }
+.layer > * { pointer-events: auto; }
+
+/* ==========================================================================
+   BOOT / LOADING
+   ========================================================================== */
+#boot {
+  display: grid; place-items: center;
+  background: var(--paper);
+  z-index: 40;
+  transition: opacity .35s steps(4, end);
+}
+#boot.is-hidden { opacity: 0; pointer-events: none; }
+#boot.is-gone { display: none; }
+
+.boot-card {
+  width: min(560px, 86vw);
+  background: var(--white);
+  border: var(--line-thick) solid var(--black);
+  padding: 0 0 26px;
+  position: relative;
+}
+/* a small Mondrian composition pinned to the card's top edge */
+.boot-card::before {
+  content: ''; display: block; height: 54px; margin: calc(var(--line-thick) * -1) calc(var(--line-thick) * -1) 26px;
+  background:
+    linear-gradient(var(--black), var(--black)) 0 0 / 100% var(--line) no-repeat,
+    linear-gradient(var(--black), var(--black)) 0 100% / 100% var(--line) no-repeat,
+    linear-gradient(var(--red), var(--red)) 0 0 / 24% 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) 24% 0 / var(--line) 100% no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) 62% 0 / var(--line) 100% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 100% 0 / 22% 100% no-repeat,
+    var(--white);
+}
+.boot-title, .boot-sub, .boot-meter, .boot-status { margin-inline: 30px; }
+.boot-title { font-family: var(--display); font-size: clamp(28px, 5vw, 44px); letter-spacing: .02em; line-height: 1; }
+.boot-sub { font-family: var(--mono); text-transform: uppercase; letter-spacing: .32em; font-size: 11px; margin-top: 8px; color: #555; }
+.boot-meter { margin-top: 26px; height: 22px; border: 4px solid var(--black); background: var(--white); position: relative; }
+.boot-fill { height: 100%; width: 0%; background: var(--red); transition: width .18s steps(6, end); }
+.boot-status { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: #444; }
+
+/* ==========================================================================
+   HUD — a Mondrian strip along the top edge
+   ========================================================================== */
+#hud { z-index: 20; }
+
+.hud-bar {
+  display: flex;
+  align-items: stretch;
+  background: var(--black);
+  gap: var(--line);
+  border-bottom: var(--line) solid var(--black);
+  min-height: 62px;
+}
+.hud-cell {
+  background: var(--white);
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 18px;
+  flex: 0 0 auto;
+}
+.hud-cell.grow { flex: 1 1 auto; justify-content: flex-end; }
+.hud-label { font-family: var(--mono); font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: #6a6a6a; display: block; }
+.hud-value { font-family: var(--mono); font-weight: 700; font-size: 22px; line-height: 1.05; letter-spacing: .02em; display: block; }
+.hud-stack { display: flex; flex-direction: column; }
+
+.hud-plate {
+  background: var(--red); color: var(--white);
+  font-family: var(--display); font-size: 20px; letter-spacing: .06em;
+  padding: 0 22px; display: flex; align-items: center; gap: 14px;
+}
+.hud-plate .hud-label { color: rgba(255,255,255,.75); }
+.hud-plate .hud-value { color: var(--white); }
+
+/* small primary-colour swatch used as a bullet */
+.swatch { width: 18px; height: 18px; flex: 0 0 auto; border: 3px solid var(--black); }
+.swatch.red { background: var(--red); }
+.swatch.yellow { background: var(--yellow); }
+.swatch.blue { background: var(--blue); }
+.swatch.white { background: var(--white); }
+
+.hearts { display: flex; gap: 6px; }
+.heart { width: 20px; height: 20px; border: 3px solid var(--black); background: var(--red); }
+.heart.empty { background: var(--white); }
+
+.hud-flash { animation: hudflash .34s steps(2, end) 2; }
+@keyframes hudflash { 50% { background: var(--yellow); } }
+
+/* transient message strip in the middle of the screen ("READY", "CHECKPOINT") */
+.hud-toast {
+  position: absolute; left: 50%; top: 32%; transform: translateX(-50%);
+  background: var(--white); border: var(--line) solid var(--black);
+  padding: 12px 30px;
+  font-family: var(--display); font-size: clamp(18px, 2.6vw, 30px);
+  text-transform: uppercase; letter-spacing: .08em; white-space: nowrap;
+  animation: toast 1.5s steps(8, end) forwards;
+}
+@keyframes toast {
+  0%   { opacity: 0; transform: translate(-50%, 14px); }
+  12%  { opacity: 1; transform: translate(-50%, 0); }
+  76%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* control hint pinned bottom-left, fades after a few seconds */
+.hud-hint {
+  position: absolute; left: 0; bottom: 0;
+  background: var(--white); border: var(--line) solid var(--black); border-left: 0; border-bottom: 0;
+  padding: 8px 18px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+  display: flex; gap: 18px; align-items: center; transition: opacity .6s linear;
+}
+.hud-hint.is-fading { opacity: 0; }
+kbd {
+  font-family: var(--mono); font-weight: 700; font-size: 11px;
+  background: var(--yellow); border: 3px solid var(--black); padding: 1px 7px; margin-right: 5px;
+}
+
+/* ==========================================================================
+   SCREENS (menus, cards, overlays)
+   ========================================================================== */
+#screens { z-index: 30; display: none; }
+#screens.is-active { display: block; }
+.screen {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  padding: var(--gap);
+  background: rgba(242, 239, 230, .93);
+  animation: screenin .2s steps(4, end);
+}
+@keyframes screenin { from { opacity: 0 } to { opacity: 1 } }
+
+.panel {
+  background: var(--white);
+  border: var(--line-thick) solid var(--black);
+  width: min(760px, 94vw);
+  max-height: 92vh;
+  /* the body scrolls, the footer does not: a long screen (and Chinese makes
+     these screens noticeably longer than English) must never push the buttons
+     off the bottom where they cannot be reached */
+  overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.panel-wide { width: min(1020px, 96vw); }
+
+/* the composition band that tops every panel */
+.panel-band {
+  height: 42px; flex: 0 0 auto;
+  background:
+    linear-gradient(var(--black), var(--black)) 0 100% / 100% var(--line) no-repeat,
+    linear-gradient(var(--red), var(--red)) 0 0 / 18% 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) 18% 0 / var(--line) 100% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) 46% 0 / 8% 100% no-repeat,
+    linear-gradient(var(--black), var(--black)) 54% 0 / var(--line) 100% no-repeat,
+    linear-gradient(var(--yellow), var(--yellow)) 78% 0 / var(--line) 100% no-repeat,
+    var(--white);
+}
+.panel-band.band-blue { background: linear-gradient(var(--black), var(--black)) 0 100% / 100% var(--line) no-repeat, linear-gradient(var(--blue), var(--blue)) 0 0 / 100% 100% no-repeat; }
+.panel-band.band-red { background: linear-gradient(var(--black), var(--black)) 0 100% / 100% var(--line) no-repeat, linear-gradient(var(--red), var(--red)) 0 0 / 100% 100% no-repeat; }
+
+.panel-body { padding: 28px 34px 30px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+.panel-foot { padding: 0 34px 30px; display: flex; gap: 12px; flex-wrap: wrap; flex: 0 0 auto; }
+
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #6a6a6a; }
+.panel-title {
+  font-family: var(--display); font-size: clamp(26px, 4.2vw, 46px);
+  line-height: .98; text-transform: uppercase; letter-spacing: .01em;
+  margin: 6px 0 4px;
+}
+.panel-title .accent { color: var(--red); }
+.panel-lede { font-size: 15px; line-height: 1.55; color: #333; max-width: 62ch; margin-top: 10px; }
+
+.rule { height: var(--line); background: var(--black); margin: 22px 0; }
+.rule.thin { height: 3px; }
+
+/* ---- buttons -------------------------------------------------------------- */
+.menu { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+.menu.row { flex-direction: row; flex-wrap: wrap; }
+.menu.row > .btn { flex: 1 1 200px; }
+
+.btn {
+  appearance: none; font: inherit; cursor: pointer;
+  background: var(--white); color: var(--black);
+  border: var(--line) solid var(--black);
+  padding: 14px 20px;
+  font-family: var(--display); font-size: 16px; letter-spacing: .09em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 14px; justify-content: flex-start;
+  transition: background .08s steps(1, end), color .08s steps(1, end), transform .06s steps(1, end);
+  text-align: left;
+}
+.btn:hover, .btn:focus-visible { background: var(--yellow); outline: none; }
+.btn:active { transform: translate(3px, 3px); }
+.btn .btn-key { margin-left: auto; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; opacity: .65; }
+.btn-primary { background: var(--red); color: var(--white); }
+.btn-primary:hover, .btn-primary:focus-visible { background: var(--black); color: var(--white); }
+.btn-blue { background: var(--blue); color: var(--white); }
+.btn-blue:hover, .btn-blue:focus-visible { background: var(--black); }
+.btn-small { padding: 9px 14px; font-size: 13px; }
+.btn[disabled], .btn.is-locked { opacity: .42; cursor: not-allowed; background: var(--white); }
+
+/* a black square bullet that fills with a primary colour on hover */
+.btn::before {
+  content: ''; width: 16px; height: 16px; flex: 0 0 auto;
+  background: var(--black); border: 3px solid var(--black);
+}
+.btn:hover::before { background: var(--white); }
+.btn-primary::before { background: var(--white); }
+
+/* ---- key/value tables (score breakdown, credits) -------------------------- */
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 0; border-top: var(--line) solid var(--black); }
+.kv > div { padding: 11px 2px; border-bottom: 3px solid var(--black); font-family: var(--mono); font-size: 13px; }
+.kv > div:nth-child(even) { text-align: right; font-weight: 700; }
+.kv .kv-total { font-family: var(--display); font-size: 20px; }
+
+/* ---- level select cards --------------------------------------------------- */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--gap); margin-top: 22px; }
+.card {
+  border: var(--line) solid var(--black); background: var(--white);
+  display: flex; flex-direction: column; cursor: pointer; text-align: left; padding: 0; font: inherit;
+  transition: transform .07s steps(1, end);
+}
+.card:hover, .card:focus-visible { outline: none; transform: translate(-3px, -3px); }
+.card.is-locked { cursor: not-allowed; opacity: .55; }
+.card-thumb { height: 86px; border-bottom: var(--line) solid var(--black); }
+.card-body { padding: 14px 16px 16px; }
+.card-num { font-family: var(--mono); font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #6a6a6a; }
+.card-name { font-family: var(--display); font-size: 21px; text-transform: uppercase; line-height: 1.05; margin: 4px 0 10px; }
+.card-stat { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; padding: 3px 0; border-top: 2px solid #d8d5cc; }
+.card-stat span:last-child { font-weight: 700; }
+.card-badge { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .16em; background: var(--yellow); border: 3px solid var(--black); padding: 2px 8px; align-self: flex-start; margin-top: 10px; }
+.card-badge.done { background: var(--red); color: var(--white); }
+.card-badge.locked { background: var(--white); }
+
+/* ---- medal pips: three squares, filled by tier ---------------------------
+   The tier is carried by how many squares are filled, not by their colour, so
+   it still reads for a colour-blind player. */
+.medal { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.medal .pip {
+  width: 14px; height: 14px; flex: 0 0 auto;
+  background: var(--white); border: 3px solid var(--black);
+}
+.medal .pip.on { background: var(--yellow); }
+.medal .medal-label {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .16em;
+  text-transform: uppercase; color: #6a6a6a; margin-left: 2px;
+}
+.panel-body .medal { margin: 10px 0 0; }
+
+/* ---- controls table (how to play) ---------------------------------------- */
+.controls { display: grid; grid-template-columns: auto 1fr; gap: 3px var(--gap); margin-top: 20px; align-items: center; }
+.controls .keys { display: flex; gap: 6px; flex-wrap: wrap; }
+.controls .desc { font-size: 14px; padding: 8px 0; border-bottom: 3px solid var(--black); }
+.controls .keys + .desc { }
+
+/* ---- painting frame used on the title / victory screen ------------------- */
+.painting {
+  border: var(--line-thick) solid var(--black);
+  background: var(--white);
+  padding: var(--line-thick);
+  width: 100%;
+}
+.painting img { display: block; width: 100%; height: auto; filter: saturate(1.05); }
+
+.title-layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 26px; align-items: center; }
+@media (max-width: 780px) { .title-layout { grid-template-columns: 1fr; } }
+
+.title-hero h1 { font-family: var(--display); font-size: clamp(38px, 8vw, 82px); line-height: .88; text-transform: uppercase; letter-spacing: -.005em; }
+.title-hero h1 em { font-style: normal; color: var(--red); }
+.title-hero .byline { font-family: var(--mono); font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #555; margin-top: 14px; }
+.title-meta { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.chip { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .16em; border: 3px solid var(--black); padding: 4px 10px; }
+.chip.red { background: var(--red); color: var(--white); }
+.chip.blue { background: var(--blue); color: var(--white); }
+.chip.yellow { background: var(--yellow); }
+
+.credit-line { display: grid; grid-template-columns: 1fr; gap: 3px; padding: 11px 0; border-bottom: 3px solid var(--black); }
+.credit-line .who { font-family: var(--display); font-size: 15px; text-transform: uppercase; }
+.credit-line .what { font-size: 13px; color: #333; }
+.credit-line .lic { font-family: var(--mono); font-size: 11px; color: #6a6a6a; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---- settings sliders ---------------------------------------------------- */
+.setting { display: grid; grid-template-columns: 110px 1fr 56px; gap: var(--gap); align-items: center; padding: 12px 0; border-bottom: 3px solid var(--black); }
+.setting label { font-family: var(--mono); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; }
+.setting output { font-family: var(--mono); font-weight: 700; font-size: 13px; text-align: right; }
+input[type=range] {
+  appearance: none; width: 100%; height: 16px; background: var(--white);
+  border: 3px solid var(--black); cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb { appearance: none; width: 22px; height: 22px; background: var(--red); border: 3px solid var(--black); margin-top: -1px; }
+input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var(--red); border: 3px solid var(--black); border-radius: 0; }
+
+/* keyboard highlight — mirrors :hover so arrow-key navigation is visible */
+.btn.is-focus { background: var(--yellow); }
+.btn-primary.is-focus { background: var(--black); color: var(--white); }
+.btn-blue.is-focus { background: var(--black); color: var(--white); }
+.card.is-focus { transform: translate(-3px, -3px); outline: var(--line) solid var(--black); }
+
+/* ---- touch controls (built by core/input.js when a touchscreen is present) - */
+.touch-controls {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 14px; gap: 14px;
+  pointer-events: none;
+}
+.touch-pad { display: flex; gap: 12px; pointer-events: auto; }
+.touch-btn {
+  appearance: none; font: inherit; cursor: pointer;
+  width: 74px; height: 74px;
+  background: rgba(255,255,255,.82);
+  border: var(--line) solid var(--black);
+  color: var(--black);
+  font-family: var(--display); font-size: 13px; letter-spacing: .06em;
+  display: grid; place-items: center;
+  touch-action: none; user-select: none;
+}
+.touch-btn.touch-jump { width: 96px; height: 96px; background: rgba(212,9,32,.86); color: var(--white); }
+.touch-btn.is-down { background: var(--yellow); color: var(--black); }
+
+/* ---- utility ------------------------------------------------------------- */
+.row-between { display: flex; justify-content: space-between; align-items: baseline; gap: var(--gap); flex-wrap: wrap; }
+.mt { margin-top: 22px; }
+.center { text-align: center; }
+.hidden { display: none !important; }
+
+/* Chinese sets denser and taller than Latin: give the display face a little
+   more leading and stop the wide Latin letter-spacing from stretching it. */
+html[lang^="zh"] .panel-title,
+html[lang^="zh"] .boot-title,
+html[lang^="zh"] .card-name,
+html[lang^="zh"] .title-hero h1 { letter-spacing: .02em; line-height: 1.12; }
+html[lang^="zh"] .panel-lede,
+html[lang^="zh"] .about-card p { line-height: 1.75; }
+html[lang^="zh"] .btn { letter-spacing: .06em; }
+html[lang^="zh"] .hud-label { letter-spacing: .1em; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
