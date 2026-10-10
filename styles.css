@@ -222,6 +222,15 @@ kbd {
 .panel-band.band-red { background: linear-gradient(var(--black), var(--black)) 0 100% / 100% var(--line) no-repeat, linear-gradient(var(--red), var(--red)) 0 0 / 100% 100% no-repeat; }
 
 .panel-body { padding: 28px 34px 30px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+
+/* A default OS scrollbar is the one thing on screen that ignores the design
+   rules, so it gets the same treatment as everything else: a black bar on
+   white, separated by a black rule. */
+.panel-body { scrollbar-width: thin; scrollbar-color: var(--black) var(--white); }
+.panel-body::-webkit-scrollbar { width: 13px; }
+.panel-body::-webkit-scrollbar-track { background: var(--white); border-left: var(--line) solid var(--black); }
+.panel-body::-webkit-scrollbar-thumb { background: var(--black); border: 0; }
+.panel-body::-webkit-scrollbar-thumb:hover { background: var(--red); }
 .panel-foot { padding: 0 34px 30px; display: flex; gap: 12px; flex-wrap: wrap; flex: 0 0 auto; }
 
 .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #6a6a6a; }
