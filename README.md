@@ -78,17 +78,28 @@ npm run clean        # 删掉 tools/.cache（下载缓存，可用 assets 重新
 
 ## 项目结构
 
+整个游戏就是这一个文件夹，没有任何东西放在它外面——没有构建产物目录，没有全局依赖，
+下载缓存也在里面（`tools/.cache/`，已 gitignore，`npm run clean` 可删）。
+
 ```
 de-stijl-platformer/
 ├── index.html              入口：import map + 图层容器
 ├── styles.css              全部 UI 样式（风格派规则都写在里面）
+├── package.json            只有几个 npm script，没有依赖、没有构建步骤
+├── start.bat               Windows 上一键起服务并打开浏览器
+├── LICENSE                 MIT（代码）。第三方素材各自保留原许可，见 assets/CREDITS.md
+├── README.md               本文件
+├── REFERENCE-REPOS.md      参考仓库调研记录（哪些借了、哪些没借、为什么）
+├── .nojekyll               告诉 GitHub Pages 不要跑 Jekyll
+├── .gitattributes          文本按 LF 归一，字体/音频/图片显式声明为二进制
 ├── src/
 │   ├── main.js             状态机 + 固定步长主循环
 │   ├── config.js           全部手感参数与调色板（改手感只动这里）
 │   ├── core/
 │   │   ├── input.js        键盘/手柄/触屏 → 具名动作
-│   │   ├── audio.js        Web Audio 播放 + 合成兜底 + 生成式配乐
-│   │   └── assets.js       图片与音频加载（缺失时自动降级，不会崩）
+│   │   ├── audio.js        Web Audio 播放 + 合成兜底 + 生成式配乐 + 节拍时钟
+│   │   ├── assets.js       图片与音频加载（缺失时自动降级，不会崩）
+│   │   └── i18n.js         ★ 中英双语文案（界面键 + 内容原文键两套查表）
 │   ├── render/
 │   │   ├── style.js        共享材质、单位立方体、带黑框的矩形构造器
 │   │   └── background.js   四层视差背景（蒙德里安式构图）
@@ -97,13 +108,14 @@ de-stijl-platformer/
 │       ├── level.js        关卡构建 + 每步更新顺序
 │       ├── collision.js    分轴 AABB 碰撞
 │       ├── player.js       ★ 玩家控制器（手感都在这里）
+│       ├── grapple.js      抓钩：速度约束而不是位置约束，所以甩不进墙里
 │       ├── enemies.js      三种敌人 + 接触判定
-│       ├── entities.js     金币/尖刺/岩浆/弹簧/移动平台/碎裂平台/存档点/终点
+│       ├── entities.js     金币/尖刺/岩浆/弹簧/移动平台/碎裂平台/节奏平台/音阶条/存档点/终点
 │       ├── particles.js    粒子池（方块粒子，无贴图）
-│       ├── camera.js       正交跟随相机（前瞻、边界夹取、震屏）
+│       ├── camera.js       正交跟随相机（前瞻、边界夹取、速度变焦、震屏）
 │       ├── hud.js          HUD
 │       ├── screens.js      菜单与弹窗
-│       └── save.js         存档与设置
+│       └── save.js         存档、设置与奖牌
 ├── tools/
 │   ├── serve.mjs           零依赖静态服务器（--prefix 可模拟 Pages 子路径）
 │   ├── fetch-assets.mjs    素材下载流水线（含 ZIP 解包、校验、生成 CREDITS）
@@ -111,7 +123,12 @@ de-stijl-platformer/
 │   ├── check-font.mjs      ★ 字体覆盖检查：UI 里出现子集没有的字就构建失败
 │   └── validate-levels.mjs ★ 关卡校验器（几何错误 + 可达性）
 ├── vendor/three/           three.js（本地化，离线可用）
-└── assets/                 字体、画作、音效 + CREDITS.md
+└── assets/
+    ├── fonts/              三个拉丁字体 + 中文字体子集 + 各自的 OFL 许可
+    │   └── glyph-coverage.json  子集覆盖了哪些字，check-font 靠它比对
+    ├── textures/           5 幅蒙德里安画作（公有领域）
+    ├── audio/              CC0 音效
+    └── CREDITS.md          逐文件来源与许可，由 fetch-assets 自动生成
 ```
 
 ---
