@@ -1,11 +1,21 @@
 #!/usr/bin/env node
 /**
- * Zero-dependency static file server. ES modules, the import map and
- * decodeAudioData all require a real HTTP origin, so opening index.html from
- * disk will not work — run this instead.
+ * Zero-dependency static file server.
  *
- *   node tools/serve.mjs            → http://127.0.0.1:8080
- *   PORT=3000 node tools/serve.mjs
+ * ES modules, the import map and decodeAudioData all need a real HTTP origin, so
+ * opening index.html from disk will not work — run this instead.
+ *
+ *   node tools/serve.mjs                                  → http://127.0.0.1:8080/
+ *   node tools/serve.mjs --prefix=composition-destijl      → .../composition-destijl/
+ *
+ * The prefix exists to reproduce a GitHub Pages *project site*, which is served
+ * from https://<user>.github.io/<repo>/ rather than from a domain root. Any path
+ * in the source that started with a bare "/" would resolve to the root and 404,
+ * so this catches that locally before deploying.
+ *
+ * Give the prefix WITHOUT a leading slash. Git Bash rewrites arguments that
+ * begin with "/" into Windows paths, so `--prefix=/foo` would arrive as
+ * `C:/Program Files/Git/foo`.
  */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
@@ -13,7 +23,16 @@ import { extname, join, normalize, resolve, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const PORT = Number(process.env.PORT ?? 8080);
+
+const arg = (name, fallback) => {
+  const hit = process.argv.find((a) => a.startsWith(`--${name}=`));
+  return hit ? hit.slice(name.length + 3) : fallback;
+};
+
+// normalise: accept "foo", "/foo" or "foo/" and produce "/foo" (or "")
+const rawPrefix = arg('prefix', process.env.PREFIX ?? '');
+const PREFIX = rawPrefix ? '/' + rawPrefix.replace(/^\/+|\/+$/g, '') : '';
+const PORT = Number(arg('port', process.env.PORT ?? (PREFIX ? 8081 : 8080)));
 const HOST = process.env.HOST ?? '127.0.0.1';
 
 const MIME = {
@@ -39,9 +58,20 @@ const MIME = {
 
 const server = createServer(async (req, res) => {
   try {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    let pathname = decodeURIComponent(url.pathname);
-    if (pathname.endsWith('/')) pathname += 'index.html';
+    let pathname = decodeURIComponent(new URL(req.url, `http://${req.headers.host}`).pathname);
+
+    if (PREFIX) {
+      if (pathname === PREFIX) {
+        res.writeHead(302, { location: PREFIX + '/' }).end();
+        return;
+      }
+      if (!pathname.startsWith(PREFIX + '/')) {
+        res.writeHead(404, { 'content-type': 'text/plain' }).end(`404 ${pathname} (outside ${PREFIX}/)`);
+        return;
+      }
+      pathname = pathname.slice(PREFIX.length);
+    }
+    if (pathname === '' || pathname.endsWith('/')) pathname += 'index.html';
 
     // resolve inside ROOT only
     const target = normalize(join(ROOT, pathname));
@@ -70,5 +100,6 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`\n  COMPOSITION — serving ${ROOT}`);
-  console.log(`  http://${HOST}:${PORT}/\n`);
+  if (PREFIX) console.log(`  simulating a GitHub Pages project site (prefix ${PREFIX}/)`);
+  console.log(`  http://${HOST}:${PORT}${PREFIX}/\n`);
 });

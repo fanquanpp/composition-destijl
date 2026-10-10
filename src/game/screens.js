@@ -194,7 +194,7 @@ export class Screens {
       [['Space'], t('howto.doubleJump')],
       [['Shift'], t('howto.dash')],
       [['Space'], t('howto.wall')],
-      [['E', 'Mouse'], t('howto.grapple')],
+      [['F', 'Q'], t('howto.grapple')],
       [['Esc'], t('howto.meta')],
     ];
     return panel({

@@ -28,7 +28,7 @@ function noteToFreq(name) {
  * Four bars each, one chord per bar, written as [bass, ...chord tones].
  * The game cross-fades nothing — it just switches progression between levels.
  */
-export const THEMES = {
+const THEMES = {
   title: {
     bpm: 86,
     bars: [

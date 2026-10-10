@@ -30,13 +30,16 @@ node tools/serve.mjs
 也可以：
 
 ```bash
-npm run serve        # 同上
+npm run serve        # 本地起服务（默认 8080）
+npm run serve:prefix # 按 /composition-destijl/ 子路径起服务，模拟 GitHub Pages
 npm run validate     # 校验三个关卡的几何与可达性（含 ASCII 地图）
 npm run check-font   # 校验中文字体子集是否还能覆盖 UI 里所有字
 npm run check        # 上面两条一起跑
 npm run assets       # 重新下载素材并重裁中文字体子集
-npm run serve:prefix # 按 /<repo>/ 子路径本地起服务，模拟 GitHub Pages
+npm run clean        # 删掉 tools/.cache（下载缓存，可用 assets 重新生成）
 ```
+
+`tools/.cache/` 是下载缓存（约 21 MB，已在 `.gitignore` 里），用来避免重复下载和离线重裁字体。它不属于源码，`npm run clean` 随时可以删。
 
 ## 操作
 
@@ -45,7 +48,7 @@ npm run serve:prefix # 按 /<repo>/ 子路径本地起服务，模拟 GitHub Pag
 | `A` `D` / `←` `→` | 左右移动 |
 | `Space` / `W` / `↑` | 跳跃。按住跳得更高，早松手则是小跳；空中再按一次是二段跳 |
 | `Shift` / `X` | 冲刺（短距离水平爆发，可跨过宽沟） |
-| 鼠标 / `E` | 抓钩。朝准心射出，挂住方块后按住收绳摆荡，松手保留全部动量（仅第三关） |
+| `F` / `Q` / 鼠标右键 | 抓钩。朝准心射出，挂住方块后按住收绳摆荡，松手保留全部动量（仅第三关） |
 | `Esc` / `P` | 暂停 · `R` 重开关卡 · `M` 静音 |
 
 也支持手柄（左摇杆 + A/B）和触屏（自动出现虚拟按键）。
@@ -102,8 +105,10 @@ de-stijl-platformer/
 │       ├── screens.js      菜单与弹窗
 │       └── save.js         存档与设置
 ├── tools/
-│   ├── serve.mjs           零依赖静态服务器
+│   ├── serve.mjs           零依赖静态服务器（--prefix 可模拟 Pages 子路径）
 │   ├── fetch-assets.mjs    素材下载流水线（含 ZIP 解包、校验、生成 CREDITS）
+│   ├── subset-font.py      把中文字体裁成只含用到的字（16.9 MB → 173 KB）
+│   ├── check-font.mjs      ★ 字体覆盖检查：UI 里出现子集没有的字就构建失败
 │   └── validate-levels.mjs ★ 关卡校验器（几何错误 + 可达性）
 ├── vendor/three/           three.js（本地化，离线可用）
 └── assets/                 字体、画作、音效 + CREDITS.md
@@ -247,6 +252,13 @@ dashSpeed: 27         dashTime: 0.15        // 冲刺
 **形状冗余**：节奏平台的警告同时用变色、抖动和横杠倒计时三种方式表达；奖牌的等级用「几格填满」表示而不是颜色。只靠颜色的话色盲玩家读不到，只靠声音的话听障玩家读不到。
 
 **奖牌**：每关按自己的目标时间给金（70%）、银（100%）、铜（140%）三档，关卡选择界面用三个小方块表示。最佳分数、最佳时间、最多金币、最少死亡各自独立记录——速通和高完成度是两种成就，不该互相覆盖。
+
+## 代码审计
+
+仓库里有两个自己写的检查脚本，不是装饰：
+
+- `npm run check` = 关卡校验 + 字体覆盖检查。字体那条会重新扫描 UI 源码，跟子集实际覆盖的字符比对——**加中文文案忘了重裁子集就会构建失败**。这条不是设想：我在补抓钩说明时写了「鼠标右键」，多出一个「鼠」字，它当场就报了 `'鼠' (U+9F20) not in the CJK subset` 并退出。
+- 我还做过一轮死代码审计（未使用的导出、从未被读取的配置项、CSS 里定义了但代码从不生成的类、残留临时文件），清掉了 12 处未使用的导出、3 项死配置、8 条死 CSS 规则和 1 条空规则，并把两个几乎重复的本地服务器脚本合并成了一个。
 
 ## 已知限制
 

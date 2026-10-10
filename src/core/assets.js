@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 
 /** The Mondrian canvases, downloaded from Wikimedia Commons (public domain). */
-export const IMAGES = {
+const IMAGES = {
   noIv:          'assets/textures/mondrian-composition-no-iv.jpg',
   yellowBlueRed: 'assets/textures/mondrian-composition-yellow-blue-red.jpg',
   roodGeelBlauw: 'assets/textures/mondrian-compositie-rood-geel-blauw.jpg',
@@ -15,7 +15,7 @@ export const IMAGES = {
 };
 
 /** CC0 sound effects, downloaded from OpenGameArt. */
-export const SOUNDS = {
+const SOUNDS = {
   jump:        'assets/audio/jump.wav',
   doubleJump:  'assets/audio/double-jump.wav',
   land:        'assets/audio/land.wav',

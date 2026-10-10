@@ -373,7 +373,7 @@ const LEVEL_3 = {
 
 export const LEVELS = [LEVEL_1, LEVEL_2, LEVEL_3];
 
-export const LEVEL_BY_ID = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
+const LEVEL_BY_ID = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
 
 export function getLevel(id) {
   return LEVEL_BY_ID[id] ?? LEVELS[0];

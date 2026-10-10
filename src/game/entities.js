@@ -170,7 +170,7 @@ export class Spring {
 // Mover — a platform that travels along a path and carries whatever rides it
 // ---------------------------------------------------------------------------
 export class Mover {
-  constructor({ x, y, w, axis, range, phase = 0 }) {
+  constructor({ x, y, w, axis, range = MOVER.defaultRange, phase = 0 }) {
     this.origin = { x, y };
     this.w = w;
     this.h = 0.4;

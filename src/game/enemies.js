@@ -72,7 +72,7 @@ class EnemyBase {
 
 // ---------------------------------------------------------------------------
 
-export class Walker extends EnemyBase {
+class Walker extends EnemyBase {
   constructor(x, y, dir) {
     super('walker', x, y, dir);
     this.speed = ENEMY.walker.speed;
@@ -108,7 +108,7 @@ export class Walker extends EnemyBase {
 
 // ---------------------------------------------------------------------------
 
-export class Flyer extends EnemyBase {
+class Flyer extends EnemyBase {
   constructor(x, y) {
     super('flyer', x, y);
     this.speed = ENEMY.flyer.speed;
@@ -143,7 +143,7 @@ export class Flyer extends EnemyBase {
 
 // ---------------------------------------------------------------------------
 
-export class Spiker extends EnemyBase {
+class Spiker extends EnemyBase {
   constructor(x, y, dir) {
     super('spiker', x, y, dir);
     this.speed = ENEMY.spiker.speed;

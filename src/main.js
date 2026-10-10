@@ -199,7 +199,7 @@ class Game {
     else if (name === 'credits') this.showCredits();
     else if (name === 'intro') this._showIntro();
     else if (name === 'pause') this._showPause();
-    else if (name === 'levelclear' && this._lastClear) this.screens.show('levelclear', this._lastClear);
+    else if (name === 'levelclear') this._showClear();
     else if (name === 'gameover') this._showGameOver();
     else if (name === 'victory') this.showVictory();
   }
@@ -426,24 +426,23 @@ class Game {
     this.particles.confettiAt(this.player.centerX, this.player.centerY + 1.5, 40, 7);
     this.camera.addShake(0.2);
 
-    this._lastClear = {
+    // keep the raw numbers, not the rendered rows: the rows have to be built at
+    // show time or a language switch leaves the old language on screen
+    this._clearData = {
       numeral: level.numeral,
-      name: tSource(level.name),
+      name: level.name,
       improved,
       isLast,
       medal,
       total: session.score,
-      rows: [
-        [t('clear.row.coins'), `${session.coins} / ${level.coins.length}`],
-        [t('clear.row.time'), formatTime(session.time)],
-        [t('clear.row.target'), `${level.targetTime}s`],
-        [t('clear.row.medal'), medal ? t(`levels.medal.${medal}`) : '—'],
-        [t('clear.row.timeBonus'), `+${timeBonus}`],
-        [t('clear.row.clear'), `+${SCORE.levelClear}`],
-        [t('clear.row.flawless'), flawless ? `+${flawless}` : '—'],
-      ],
+      coins: session.coins,
+      coinTotal: level.coins.length,
+      time: session.time,
+      targetTime: level.targetTime,
+      timeBonus,
+      flawless,
     };
-    this.screens.show('levelclear', this._lastClear);
+    this._showClear();
   }
 
   showGameOver() {
@@ -451,6 +450,28 @@ class Game {
     this.audio.stopMusic();
     this.audio.play('death', { volume: 0.8 });
     this._showGameOver();
+  }
+
+  _showClear() {
+    const d = this._clearData;
+    if (!d) return;
+    this.screens.show('levelclear', {
+      numeral: d.numeral,
+      name: tSource(d.name),
+      improved: d.improved,
+      isLast: d.isLast,
+      medal: d.medal,
+      total: d.total,
+      rows: [
+        [t('clear.row.coins'), `${d.coins} / ${d.coinTotal}`],
+        [t('clear.row.time'), formatTime(d.time)],
+        [t('clear.row.target'), `${d.targetTime}s`],
+        [t('clear.row.medal'), d.medal ? t(`levels.medal.${d.medal}`) : '—'],
+        [t('clear.row.timeBonus'), `+${d.timeBonus}`],
+        [t('clear.row.clear'), `+${SCORE.levelClear}`],
+        [t('clear.row.flawless'), d.flawless ? `+${d.flawless}` : '—'],
+      ],
+    });
   }
 
   _showGameOver() {

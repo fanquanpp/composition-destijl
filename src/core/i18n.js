@@ -84,7 +84,7 @@ const EN = {
   'howto.doubleJump': 'Press again in mid-air for the double jump.',
   'howto.dash': 'Dash — a short burst that crosses wide gaps.',
   'howto.wall': 'Jump into a wall to slide, then jump again to climb it.',
-  'howto.grapple': 'Fire the rope at the crosshair, then hold to reel in and swing. Release to keep your momentum. Level III only.',
+  'howto.grapple': 'Fire the rope with F (or the right mouse button) toward the crosshair, then hold to reel in and swing. Release to keep your momentum. Level III only.',
   'howto.meta': 'Pause. R to restart the level, M to mute.',
   'howto.rules': '<strong>Stomp</strong> blue walkers and yellow flyers from above. <strong>Do not</strong> land on black spikers — they hurt from every direction. Spikes cost a heart; lava is instant death. Checkpoints are the white flags: touch one and it turns red. The white slabs with a blue stripe blink on the beat — time them. The coloured pads set into the floor play a note when you land.',
 
@@ -247,7 +247,7 @@ const ZH = {
   'howto.doubleJump': '空中再按一次，二段跳。',
   'howto.dash': '冲刺——短距离爆发，可以跨过很宽的沟。',
   'howto.wall': '跳向墙面会贴住滑行，再跳一次就能蹬墙往上爬。',
-  'howto.grapple': '朝准心射出抓钩，挂住后按住收绳摆荡，松手保留全部动量。仅第三关可用。',
+  'howto.grapple': '按 F（或鼠标右键）朝准心射出抓钩，挂住后按住收绳摆荡，松手保留全部动量。仅第三关可用。',
   'howto.meta': '暂停。R 重开本关，M 静音。',
   'howto.rules': '从上方踩死蓝色方块与黄色飞行敌。<strong>不要</strong>踩黑色的带刺方块——它每一面都会伤到你。尖刺扣一颗心，岩浆直接死亡。白旗是存档点，碰一下会变红。带蓝色条纹的白色板会跟着节拍闪烁，要掐准时机。地面上那些彩色嵌块踩上去会响一个音。',
 
@@ -402,8 +402,6 @@ export function resolveLocale(setting) {
 
 let current = 'en';
 const listeners = new Set();
-
-export function getLocale() { return current; }
 
 export function setLocale(setting) {
   const next = resolveLocale(setting);

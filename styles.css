@@ -218,15 +218,18 @@ kbd {
     linear-gradient(var(--yellow), var(--yellow)) 78% 0 / var(--line) 100% no-repeat,
     var(--white);
 }
-.panel-band.band-blue { background: linear-gradient(var(--black), var(--black)) 0 100% / 100% var(--line) no-repeat, linear-gradient(var(--blue), var(--blue)) 0 0 / 100% 100% no-repeat; }
-.panel-band.band-red { background: linear-gradient(var(--black), var(--black)) 0 100% / 100% var(--line) no-repeat, linear-gradient(var(--red), var(--red)) 0 0 / 100% 100% no-repeat; }
 
-.panel-body { padding: 28px 34px 30px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
-
-/* A default OS scrollbar is the one thing on screen that ignores the design
-   rules, so it gets the same treatment as everything else: a black bar on
-   white, separated by a black rule. */
-.panel-body { scrollbar-width: thin; scrollbar-color: var(--black) var(--white); }
+.panel-body {
+  padding: 28px 34px 30px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* A default OS scrollbar is the one thing on screen that ignores the design
+     rules, so it gets the same treatment as everything else: a black bar on
+     white, separated by a black rule. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--black) var(--white);
+}
 .panel-body::-webkit-scrollbar { width: 13px; }
 .panel-body::-webkit-scrollbar-track { background: var(--white); border-left: var(--line) solid var(--black); }
 .panel-body::-webkit-scrollbar-thumb { background: var(--black); border: 0; }
@@ -265,9 +268,6 @@ kbd {
 .btn .btn-key { margin-left: auto; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; opacity: .65; }
 .btn-primary { background: var(--red); color: var(--white); }
 .btn-primary:hover, .btn-primary:focus-visible { background: var(--black); color: var(--white); }
-.btn-blue { background: var(--blue); color: var(--white); }
-.btn-blue:hover, .btn-blue:focus-visible { background: var(--black); }
-.btn-small { padding: 9px 14px; font-size: 13px; }
 .btn[disabled], .btn.is-locked { opacity: .42; cursor: not-allowed; background: var(--white); }
 
 /* a black square bullet that fills with a primary colour on hover */
@@ -322,7 +322,6 @@ kbd {
 .controls { display: grid; grid-template-columns: auto 1fr; gap: 3px var(--gap); margin-top: 20px; align-items: center; }
 .controls .keys { display: flex; gap: 6px; flex-wrap: wrap; }
 .controls .desc { font-size: 14px; padding: 8px 0; border-bottom: 3px solid var(--black); }
-.controls .keys + .desc { }
 
 /* ---- painting frame used on the title / victory screen ------------------- */
 .painting {
@@ -338,7 +337,6 @@ kbd {
 
 .title-hero h1 { font-family: var(--display); font-size: clamp(38px, 8vw, 82px); line-height: .88; text-transform: uppercase; letter-spacing: -.005em; }
 .title-hero h1 em { font-style: normal; color: var(--red); }
-.title-hero .byline { font-family: var(--mono); font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: #555; margin-top: 14px; }
 .title-meta { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 .chip { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .16em; border: 3px solid var(--black); padding: 4px 10px; }
 .chip.red { background: var(--red); color: var(--white); }
@@ -364,7 +362,6 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 /* keyboard highlight — mirrors :hover so arrow-key navigation is visible */
 .btn.is-focus { background: var(--yellow); }
 .btn-primary.is-focus { background: var(--black); color: var(--white); }
-.btn-blue.is-focus { background: var(--black); color: var(--white); }
 .card.is-focus { transform: translate(-3px, -3px); outline: var(--line) solid var(--black); }
 
 /* ---- touch controls (built by core/input.js when a touchscreen is present) - */
@@ -391,7 +388,6 @@ input[type=range]::-moz-range-thumb { width: 22px; height: 22px; background: var
 /* ---- utility ------------------------------------------------------------- */
 .row-between { display: flex; justify-content: space-between; align-items: baseline; gap: var(--gap); flex-wrap: wrap; }
 .mt { margin-top: 22px; }
-.center { text-align: center; }
 .hidden { display: none !important; }
 
 /* Chinese sets denser and taller than Latin: give the display face a little
@@ -400,8 +396,6 @@ html[lang^="zh"] .panel-title,
 html[lang^="zh"] .boot-title,
 html[lang^="zh"] .card-name,
 html[lang^="zh"] .title-hero h1 { letter-spacing: .02em; line-height: 1.12; }
-html[lang^="zh"] .panel-lede,
-html[lang^="zh"] .about-card p { line-height: 1.75; }
 html[lang^="zh"] .btn { letter-spacing: .06em; }
 html[lang^="zh"] .hud-label { letter-spacing: .1em; }
 

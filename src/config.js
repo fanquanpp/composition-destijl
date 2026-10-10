@@ -14,27 +14,12 @@ export const PALETTE = {
   ink:    0x141414,
 };
 
-export const CSS_PALETTE = {
-  white: '#ffffff',
-  paper: '#f2efe6',
-  black: '#0d0d0d',
-  red: '#d40920',
-  blue: '#0b4ea2',
-  yellow: '#f7d117',
-};
-
-/** Primary colours only — used to pick accent blocks deterministically. */
-export const ACCENTS = [PALETTE.red, PALETTE.yellow, PALETTE.blue];
-
 /** Simulation runs on a fixed step; rendering interpolates nothing (it's cheap). */
 export const SIM = {
   fixedStep: 1 / 120,
   maxStepsPerFrame: 6,
   maxFrameTime: 1 / 15, // clamp so a tab-switch can't fast-forward the world
 };
-
-/** Tile size in world units. 1 unit = 1 tile keeps level authoring honest. */
-export const TILE = 1;
 
 /** Geometry thickness constants for the De Stijl look. */
 export const STYLE = {
@@ -152,12 +137,10 @@ export const ENEMY = {
 
 export const PICKUP = {
   coin: { size: 0.44, score: 10, spin: 3.2 },
-  /** distance at which a coin starts drifting toward the player */
-  magnetRadius: 0,
 };
 
 export const MOVER = {
-  /** default travel distance in tiles when a level doesn't specify one */
+  /** travel distance in tiles when a level entry omits `range` */
   defaultRange: 3,
   speed: 2.6,
   /** seconds to wait at each end of the path */

@@ -12,7 +12,7 @@ export function overlaps(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
-export function overlapsX(a, b) {
+function overlapsX(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x;
 }
 
@@ -57,14 +57,6 @@ export function moveY(level, body, dy, prevBottom) {
 /** Is there any solid/one-way surface within `tol` below (x, y)? */
 export function groundBelow(level, x, y, tol = 0.12) {
   const probe = { x: x - 0.05, y: y - tol, w: 0.1, h: tol };
-  for (const s of level.solidBodies()) if (overlaps(probe, s)) return true;
-  for (const p of level.oneWayBodies()) if (overlaps(probe, p)) return true;
-  return false;
-}
-
-/** Is there solid geometry at (x, y)? Used for enemy ledge detection. */
-export function solidAt(level, x, y) {
-  const probe = { x, y, w: 0.001, h: 0.001 };
   for (const s of level.solidBodies()) if (overlaps(probe, s)) return true;
   for (const p of level.oneWayBodies()) if (overlaps(probe, p)) return true;
   return false;
