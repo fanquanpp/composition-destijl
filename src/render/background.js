@@ -139,11 +139,14 @@ export class Backdrop {
       return holder;
     });
 
-    // downloaded Mondrian canvases, hung on the mid plane
+    // downloaded Mondrian canvases, hung on their own plane between the mid and
+    // near bands. They are the most detailed things in the backdrop, so giving
+    // them a parallax rate of their own makes them the legible anchor of that
+    // distance: they slide against the band behind them as the camera moves
     if (paintings.length) {
       const gallery = new THREE.Group();
       gallery.position.set(this.centerX, this.centerY, Z.mid + 1.2);
-      gallery.userData.closeness = 0.32;
+      gallery.userData.closeness = 0.46;
       for (const p of paintings) {
         const frame = makePainting(p.texture, p.w ?? 5.2, p.h ?? 5.2, { z: 0 });
         frame.position.set(p.x - this.centerX, p.y - this.centerY, 0);
