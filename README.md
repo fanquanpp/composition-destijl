@@ -1,6 +1,8 @@
+**简体中文** · [English](README.en.md)
+
 # COMPOSITION — 一个风格派（De Stijl）平台跳跃游戏
 
-**▶ 在线试玩 <https://fanquanpp.github.io/composition-destijl/>** · 3 关约 20 分钟 · 中英双语 · 无构建步骤、零依赖
+**▶ 在线试玩 <https://fanquanpp.github.io/destijl-platformer/>** · 3 关约 20 分钟 · 中英双语 · 无构建步骤、零依赖
 
 用 three.js 写的完整平台跳跃游戏。整个世界按**风格派**（De Stijl / 荷兰风格派运动，Mondrian 与 van Doesburg 那一派）的规则构建：只有矩形、只有直线、只用红黄蓝三原色加白与黑，没有圆角、没有渐变、没有阴影、没有光照。
 
@@ -13,7 +15,7 @@
 > **orthographic** camera — true to the style, and the right choice for
 > platforming, because the jump arc on screen is exactly the jump arc in the
 > simulation. Three levels, bilingual EN/中文, no build step, zero dependencies.
-> **[Play it in the browser →](https://fanquanpp.github.io/composition-destijl/)**
+> **[Play it in the browser →](https://fanquanpp.github.io/destijl-platformer/)**
 
 ```
     ┌──────────────────────────────────────────────────┐
@@ -39,7 +41,7 @@
 需要 Node 18+（只用来跑本地静态服务器，游戏本身不需要构建步骤）。
 
 ```bash
-cd composition-destijl
+cd destijl-platformer
 node tools/serve.mjs
 # 打开 http://127.0.0.1:8080/
 ```
@@ -50,7 +52,7 @@ node tools/serve.mjs
 
 ```bash
 npm run serve        # 本地起服务（默认 8080）
-npm run serve:prefix # 按 /composition-destijl/ 子路径起服务，模拟 GitHub Pages
+npm run serve:prefix # 按 /destijl-platformer/ 子路径起服务，模拟 GitHub Pages
 npm run validate     # 校验三个关卡的几何与可达性（含 ASCII 地图）
 npm run check-font   # 校验中文字体子集是否还能覆盖 UI 里所有字
 npm run check        # 上面两条一起跑
@@ -101,7 +103,7 @@ npm run clean        # 删掉 tools/.cache（下载缓存，可用 assets 重新
 下载缓存也在里面（`tools/.cache/`，已 gitignore，`npm run clean` 可删）。
 
 ```
-composition-destijl/
+destijl-platformer/
 ├── index.html              入口：import map + 图层容器
 ├── styles.css              全部 UI 样式（风格派规则都写在里面）
 ├── package.json            只有几个 npm script，没有依赖、没有构建步骤
